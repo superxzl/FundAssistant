@@ -3,22 +3,27 @@
 		<nav-bar title="我的持仓"></nav-bar>
 		<!-- 公共组件-每个页面必须引入 -->
 		<public-module></public-module>
-		<view class="header_count">
-			<view class="money" :style="{'color':todayColor}">
-				今日：{{today_money}}
-			</view>
-			<view class="money" :style="{'color':allColor}">累计：{{all_money}}</view>
-		</view>
-		<view v-for="(item, index) of cardinfo" :key="index" class="swipe_action_list">
-			<swipe-action :options="options" :index="item.id" :titel="item.fund_code" @button="onButton">
-				<view class="swipe_action">
-					<card :cardinfo="item"></card>
+		<!-- <mescroll-body ref="mescrollRef" @init="mescrollInit" :down="downOption" @down="downCallback" @up="upCallback"> -->
+			<view class="header_count">
+				<view class="money" :style="{'color':Number(this.all_money) > 0 ? '#FE635F' : '#00AA90'}">今日：{{all_money}}</view>
+				<view class="money" :style="{'color':Number(this.today_money) > 0 ? '#FE635F' : '#00AA90'}">
+					累计：{{today_money}}
 				</view>
-			</swipe-action>
-		</view>
-		<uni-fab ref="fab" :pattern="pattern" :content="content" :horizontal="horizontal" :vertical="vertical" :direction="direction"
-		 @trigger="trigger" @fabClick="fabClick" />
-		<z-prompt ref="prompt" @confirm="onPromptConfirm2"></z-prompt>
+			</view>
+			<view class="" v-if="cardinfo.length<=0">
+				<view class="empty_data">请添加持仓！</view>
+			</view>
+			<view v-for="(item, index) of cardinfo" :key="index" class="swipe_action_list">
+				<swipe-action :options="options" :index="item.ID" :titel="item.NAME" @button="onButton()" :style="{'color':item.FUNDDRZD>0?'#FE635F':'#00AA90'}">
+					<view class="swipe_action">
+						<card :cardinfo="item"></card>
+					</view>
+				</swipe-action>
+			</view>
+			<uni-fab ref="fab" :pattern="pattern" :content="content" :horizontal="horizontal" :vertical="vertical" :direction="direction"
+			 @trigger="trigger" @fabClick="fabClick" />
+			<z-prompt ref="prompt" @confirm="onPromptConfirm2"></z-prompt>
+		<!-- </mescroll-body> -->
 	</view>
 </template>
 
@@ -46,8 +51,8 @@
 				horizontal: 'right',
 				vertical: 'bottom',
 				direction: 'vertical',
-				today_money: '',
-				all_money: '',
+				today_money: '未持仓',
+				all_money: '未持仓',
 				showtitle: '',
 				pattern: {
 					color: '#7A7E83',
@@ -56,31 +61,34 @@
 					buttonColor: '#FE635F'
 				},
 				content: [{
-						iconPath: '/static/component.png',
-						selectedIconPath: '/static/componentHL.png',
+						iconPath: '../../static/home/add.png',
+						selectedIconPath: '../../static/home/add.png',
 						text: '添加',
 						active: true
-					},
-					{
-						iconPath: '/static/component.png',
-						selectedIconPath: '/static/componentHL.png',
-						text: '简约模式',
-						active: true
-					},
+					}
+					// ,
+					// {
+					// 	iconPath: '/static/component.png',
+					// 	selectedIconPath: '/static/componentHL.png',
+					// 	text: '简约模式',
+					// 	active: true
+					// },
 				],
 				allColor: 'red',
 				todayColor: 'red',
 				cardinfo: [],
 				options: [{
 						text: '修改',
+						title: '',
 						style: {
-							backgroundColor: '#007aff'
+							backgroundColor: '#00AA90'
 						}
 					},
 					{
 						text: '删除',
+						title: '',
 						style: {
-							backgroundColor: '#dd524d'
+							backgroundColor: '#FE635F'
 						}
 					}
 				],
@@ -89,7 +97,7 @@
 		},
 		//第一次加载
 		onLoad(e) {
-
+			this.fastFlush()
 		},
 		//页面显示
 		onShow() {
@@ -103,26 +111,102 @@
 					url: "../user/login"
 				})
 			}
+			this.fastFlush()
 		},
 		//方法
 		methods: {
 			onPromptConfirm2($event) {
 				console.log($event)
+				if ($event.type == 'edit') {
+					$event.value.map(item => {
+						console.log(item);
+						if (item.cost == '' || item.share == '') {
+							uni.showToast({
+								title: "请填写完整"
+							})
+						} else {
+							myhttp
+								.post('api/fund/edit', {
+									id: $event.index,
+									cost: item.cost,
+									share: item.share,
+								}, {
+									custom: {
+										auth: true
+									}
+								})
+								.then(res => {
+									uni.showToast({
+										title: '修改成功',
+										icon: 'none'
+									});
+									this.$refs.prompt.onPopupHide()
+									this.fastFlush()
+								})
+								.catch(err => {
+									if (err.data.code == 401) {
+										uni.setStorageSync('token', '');
+									}
+									uni.showToast({
+										'title': err.data.msg
+									})
+								});
+						}
+					})
+				} else {
+					$event.value.map(item => {
+						if (item.code == '' || item.cost == '' || item.share == '') {
+							uni.showToast({
+								title: "请填写完整"
+							})
+						} else {
+							myhttp
+								.post('api/fund/add', {
+									fund_code: item.code,
+									cost: item.cost,
+									share: item.share,
+								}, {
+									custom: {
+										auth: true
+									}
+								})
+								.then(res => {
+									uni.showToast({
+										title: '添加成功',
+										icon: 'none'
+									});
+									this.$refs.prompt.onPopupHide()
+									this.fastFlush()
+								})
+								.catch(err => {
+									if (err.data.code == 401) {
+										uni.setStorageSync('token', '');
+									}
+									uni.showToast({
+										'title': err.data.msg
+									})
+								});
+						}
+					})
+				}
 			},
-			onShowPrompt() {
+			onShowPrompt(index) {
 				this.$refs.prompt.onPopupShow("", {
-					title: '修改' + this.showtitle,
-					but_title: '确定',
+					title: '修改持仓' + this.showtitle,
+					but_title: '保存修改',
+					index: index,
+					type: 'edit',
 					Config: [{
 							title: '操作', // 标题
 							tips: "持仓净值", // 提示
 							confirmText: '确认', // 确认按钮文字
 							placeholder: '持仓净值', // 输入框提示文字
 							password: false, // 是否是密码框
-							inputType: 'number', // 输入框类型
+							inputType: 'text', // 输入框类型
 							maxlength: 11, // 最大输入长度
 							confirmType: "done", // 设置键盘右下角按钮的文字，仅在 type="text" 时生效,
-							value: ""
+							value: "",
+							name: "cost"
 						},
 						{
 							title: '操作', // 标题
@@ -130,15 +214,16 @@
 							confirmText: '确认', // 确认按钮文字
 							placeholder: '持仓数量', // 输入框提示文字
 							password: false, // 是否是密码框
-							inputType: 'number', // 输入框类型
+							inputType: 'text', // 输入框类型
 							maxlength: 11, // 最大输入长度
 							confirmType: "done", // 设置键盘右下角按钮的文字，仅在 type="text" 时生效,
-							value: ""
+							value: "",
+							name: "share"
 						}
 					]
 				});
 			},
-			onShow() {
+			fastFlush() {
 				myhttp
 					.post('api/fund/index', {}, {
 						custom: {
@@ -149,8 +234,7 @@
 						this.cardinfo = res.data.data
 						this.today_money = res.data.all_profit_and_loss_today
 						this.all_money = res.data.all_total_revenue
-						this.allColor = Number(this.all_money) > 0 ? 'red' : 'green'
-						this.todayColor = Number(this.today_money) > 0 ? 'red' : 'green'
+						uni.stopPullDownRefresh();
 					})
 					.catch(err => {
 						if (err.data.code == 401) {
@@ -159,6 +243,7 @@
 						uni.showToast({
 							'title': err.data.msg
 						})
+						this.mescroll.endErr();
 					});
 			},
 			onBackPress() {
@@ -198,6 +283,7 @@
 												title: '删除成功',
 												icon: 'none'
 											});
+											this.fastFlush()
 										})
 										.catch(err => {
 											if (err.data.code == 401) {
@@ -210,31 +296,12 @@
 								} else if (res.cancel) {
 									console.log('取消删除')
 								}
-							}
+							}.bind(this)
 						})
 
 						break;
 					case '修改':
-						this.onShowPrompt()
-						// myhttp
-						// 	.post('api/fund/edit', {
-						// 		id: e.index
-						// 	}, {
-						// 		custom: {
-						// 			auth: true
-						// 		}
-						// 	})
-						// 	.then(res => {
-						// 		uni.showToast({
-						// 			title: '修改成功',
-						// 			icon: 'none'
-						// 		});
-						// 	})
-						// 	.catch(err => {
-						// 		uni.showToast({
-						// 			'title': err.data.msg
-						// 		})
-						// 	});
+						this.onShowPrompt(e.index)
 						break;
 					default:
 						break;
@@ -244,25 +311,74 @@
 				console.log('you tap icon')
 			},
 			trigger(e) {
-				console.log(e)
-				this.content[e.index].active = !e.item.active
-				uni.showModal({
-					title: '提示',
-					content: `您${this.content[e.index].active ? '选中了' : '取消了'}${e.item.text}`,
-					success: function(res) {
-						if (res.confirm) {
-							console.log('用户点击确定')
-						} else if (res.cancel) {
-							console.log('用户点击取消')
-						}
-					}
-				})
+				switch (e.index) {
+					case 0:
+						this.$refs.prompt.onPopupShow("", {
+							title: '添加持仓',
+							but_title: '添加',
+							type: 'add',
+							Config: [{
+									title: '操作', // 标题
+									tips: "基金代码", // 提示
+									confirmText: '确认', // 确认按钮文字
+									placeholder: '基金代码', // 输入框提示文字
+									password: false, // 是否是密码框
+									inputType: 'text', // 输入框类型
+									maxlength: 11, // 最大输入长度
+									confirmType: "done", // 设置键盘右下角按钮的文字，仅在 type="text" 时生效,
+									value: "",
+									name: "code"
+								}, {
+									title: '操作', // 标题
+									tips: "持仓净值", // 提示
+									confirmText: '确认', // 确认按钮文字
+									placeholder: '持仓净值', // 输入框提示文字
+									password: false, // 是否是密码框
+									inputType: 'text', // 输入框类型
+									maxlength: 11, // 最大输入长度
+									confirmType: "done", // 设置键盘右下角按钮的文字，仅在 type="text" 时生效,
+									value: "",
+									name: "cost"
+								},
+								{
+									title: '操作', // 标题
+									tips: "持仓数量", // 提示
+									confirmText: '确认', // 确认按钮文字
+									placeholder: '持仓数量', // 输入框提示文字
+									password: false, // 是否是密码框
+									inputType: 'text', // 输入框类型
+									maxlength: 11, // 最大输入长度
+									confirmType: "done", // 设置键盘右下角按钮的文字，仅在 type="text" 时生效,
+									value: "",
+									name: "share"
+								}
+							]
+						})
+						break;
+					case 1:
+						console.log('修改')
+						this.content[e.index].active = !e.item.active
+					default:
+						break;
+				}
+				// uni.showModal({
+				// 	title: '提示',
+				// 	content: `您${this.content[e.index].active ? '选中了' : '取消了'}${e.item.text}`,
+				// 	success: function(res) {
+				// 		if (res.confirm) {
+				// 			console.log(res)
+				// 			console.log('用户点击确定')
+				// 		} else if (res.cancel) {
+				// 			console.log('用户点击取消')
+				// 		}
+				// 	}
+				// })
 			},
 			fabClick() {
-				uni.showToast({
-					title: '点击了悬浮按钮',
-					icon: 'none'
-				})
+				// uni.showToast({
+				// 	title: '点击了悬浮按钮',
+				// 	icon: 'none'
+				// })
 			},
 			switchBtn(hor, ver) {
 				if (hor === 0) {
@@ -280,7 +396,19 @@
 		//页面卸载
 		onUnload() {},
 		//页面下来刷新
-		onPullDownRefresh() {},
+		onPullDownRefresh() {
+			this.fastFlush()
+		},
+		/*下拉刷新的回调 */
+		downCallback() {
+			//联网加载数据
+			// this.fastFlush()
+		},
+		/*上拉加载的回调: 其中page.num:当前页 从1开始, page.size:每页数据条数,默认10 */
+		upCallback(page) {
+			//联网加载数据
+			// this.fastFlush()
+		},
 		//页面上拉触底
 		onReachBottom() {},
 		//用户点击分享
@@ -290,6 +418,21 @@
 	};
 </script>
 <style scoped>
+	.empty_data {
+		border-width: 2rpx;
+		margin-left: 27rpx;
+		margin-right: 27rpx;
+		border-radius: 10rpx;
+		margin-top: 20rpx;
+		height: 70rpx;
+		display: block;
+		line-height: 70rpx;
+		background-color: #FFFFFF;
+		border: 1px dashed #999999;
+		text-align: center;
+		color: #FE635F;
+	}
+
 	.swipe_action_list {
 		border-bottom-width: 2rpx;
 		border-bottom-color: #eee;
@@ -303,8 +446,9 @@
 
 	.money {
 		display: inline;
-		margin-left: 70rpx;
+		margin-left: 90rpx;
 		text-align: center;
+		font-size: 12px;
 	}
 
 	.header_count {

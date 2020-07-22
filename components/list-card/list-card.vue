@@ -2,33 +2,35 @@
 	<view class="box">
 		<view class="father-box">
 			<view class="header">
-				<view class="auth">{{cardinfo.name}}</view>
-				<view class="leave">{{cardinfo.up_and_down}}</view>
-				<view class="tag">{{cardinfo.fund_code}}</view>
-				<view class="time">更新时间:{{cardinfo.update_time}}</view>
+				<view class="auth">{{cardinfo.NAME}}</view>
+				<!-- <view class="leave_title">涨跌：</view> -->
+				<view class="leave" :style="{'background':cardinfo.gszzl>0?'#FE635F':'#00AA90'}">{{cardinfo.gszzl}}%</view>
+				<!-- <view class="tag_title">财富密码：</view> -->
+				<view class="tag">{{cardinfo.FCODE}}</view>
+				<!-- <view class="time">更新时间：{{cardinfo.gztime}}</view> -->
 			</view>
-			<view class="content">
-				<!-- {{cardinfo.content}} -->
+			<!-- 			<view class="content">
+				{{cardinfo.content}}
 				净值图:
-				<image class="img" :src="cardinfo.code_pic"></image>
-				<!-- 				<view class="show">
+				<image class="img" :src="cardinfo.PIC"></image>
+								<view class="show">
 						份额：{{cardinfo.fenge}}
-					</view> -->
+					</view>
 			</view>
-
+ -->
 			<view class="hr"></view>
 			<view class="function">
 				<view class="good">
-					<view>成本涨跌:{{cardinfo.cost_up_and_down}}</view>
+					<view :style="{'color': Number(cardinfo.FUNDCBZD.substring(0,cardinfo.FUNDCBZD.length-1)) >0?'#FE635F':'#00AA90'}">成本涨跌：{{cardinfo.FUNDCBZD}}</view>
 				</view>
 				<view class="good">
-					<view>持仓金额:{{cardinfo.my_money}}</view>
+					<view>持仓金额：{{cardinfo.FUNDCCJE}}</view>
 				</view>
 				<view class="good">
-					<view>今日盈亏:{{cardinfo.profit_and_loss_today}}</view>
+					<view :style="{'color':cardinfo.FUNDDRZD>0?'#FE635F':'#00AA90'}">今日盈亏：{{cardinfo.FUNDDRZD}}</view>
 				</view>
 				<view class="good">
-					<view>累计盈亏:{{cardinfo.total_revenue}}</view>
+					<view :style="{'color':cardinfo.FUNDZZD>0?'#FE635F':'#00AA90'}">累计盈亏：{{cardinfo.FUNDZZD}}</view>
 				</view>
 			</view>
 		</view>
@@ -60,7 +62,7 @@
 	.father-box {
 		background-color: #FFFFFF;
 		box-shadow: #C8C7CC;
-		height: 530upx;
+		height: 300upx;
 		width: 93%;
 		margin: 20upx auto;
 		border: 1px dashed #999999;
@@ -96,15 +98,15 @@
 	.leave {
 		font-size: 12px;
 		text-align: center;
-		background: #4CD964;
+		/* background: #4CD964; */
 		width: 100upx;
 		text-align: center;
 		height: 38upx;
 		line-height: 38upx;
 		border-radius: 10upx;
 		color: #F2F2F2;
-		margin-left: 440rpx;
-		margin-top: -35upx;
+		margin-left: 90rpx;
+		margin-top: 20rpx;
 	}
 
 	.content {
@@ -140,7 +142,7 @@
 		color: #6D6D72;
 		margin-top: -2upx;
 		text-align: center;
-		margin-right: 30rpx;
+		/* margin-right: 30rpx; */
 		margin-left: 40rpx;
 	}
 
@@ -169,8 +171,9 @@
 		height: 38upx;
 		border-radius: 10upx;
 		color: #F2F2F2;
-		margin-left: 550upx;
+		margin-left: 200rpx;
 		margin-top: -33upx;
+		margin-bottom: 20rpx;
 	}
 
 	.header {

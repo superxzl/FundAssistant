@@ -38,7 +38,9 @@
 		}
 	    ,{
             "path" : "pages/user/login",
-            "style" : {}
+            "style" : {
+				"navigationBarTitleText": "用户登录"
+			}
         }
         ,{
             "path" : "pages/user/bindPhone",
@@ -47,6 +49,12 @@
         ,{
             "path" : "pages/user/register",
             "style" : {}
+        }
+        ,{
+            "path" : "pages/service/ranking",
+            "style" : {
+				"navigationBarTitleText": "排名"
+			}
         }
     ],
 	"globalStyle": {
@@ -69,7 +77,7 @@
 				"text": "基金"
 			},
 			{
-				"pagePath": "pages/my/my",
+				"pagePath": "pages/service/ranking",
 				"iconPath": "static/icon/tab/icon_xiaoxi.png",
 				"selectedIconPath": "static/icon/tab/icon_xiaoxi_c.png",
 				"text": "排行"

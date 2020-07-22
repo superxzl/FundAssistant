@@ -13,13 +13,15 @@ import {
 // #endif
 let version_code = '';
 // #ifdef APP-PLUS
-import { getCurrentNo } from '@/plugins/APPUpdate';
+import {
+	getCurrentNo
+} from '@/plugins/APPUpdate';
 setTimeout(() => {
-	getCurrentNo(function(res){
-		console.log("版本号",res);
+	getCurrentNo(function(res) {
+		console.log("版本号", res);
 		version_code = res.versionCode;
 	});
-},200);
+}, 200);
 // #endif
 
 //可以new多个request来支持多个域名请求
@@ -35,7 +37,7 @@ let $http = new request({
 	}
 });
 // 添加获取七牛云token的方法
-$http.getQnToken = function(callback){
+$http.getQnToken = function(callback) {
 	//该地址需要开发者自行配置（每个后台的接口风格都不一样）
 	$http.get("api/kemean/aid/qn_upload").then(data => {
 		/*
@@ -77,7 +79,7 @@ $http.requestStart = function(options) {
 	}
 	// #ifdef APP-PLUS
 	// 添加当前版本号
-	if(version_code){
+	if (version_code) {
 		options.header['version_code'] = version_code;
 	}
 	// #endif
@@ -94,31 +96,32 @@ $http.requestEnd = function(options, resolve) {
 		// 关闭加载动画
 		store.commit("setLoadingShow", false);
 	}
-	if (resolve.errMsg && resolve.statusCode && resolve.statusCode > 300) {
-		setTimeout(() => {
-			uni.showToast({
-				title: "网络错误，请检查一下网络",
-				icon: "none"
-			});
-		}, 500);
-	}
+
+	// if (resolve.code && resolve.code != 1) {
+	// 	setTimeout(() => {
+	// 		uni.showToast({
+	// 			title: "网络错误，请检查一下网络",
+	// 			icon: "none"
+	// 		});
+	// 	}, 500);
+	// }
 }
 let loginPopupNum = 0;
 //所有接口数据处理（此方法需要开发者根据各自的接口返回类型修改，以下只是模板）
 $http.dataFactory = async function(res) {
 	if (res.response.statusCode && res.response.statusCode == 200) {
 		let httpData = res.response.data;
-		if(typeof(httpData) == "string"){
+		if (typeof(httpData) == "string") {
 			httpData = JSON.parse(httpData);
 		}
 		/*********以下只是模板(及共参考)，需要开发者根据各自的接口返回类型修改*********/
-	
+
 		//判断数据是否请求成功
 		if (httpData.success || httpData.code == 200) {
 			// 返回正确的结果(then接受数据)
 			return Promise.resolve(httpData.data);
 		} else if (httpData.code == "1000" || httpData.code == "1001" || httpData.code == 1100) {
-			
+
 			// 失败重发
 			// $http.request({
 			// 	url: res.url,
@@ -131,7 +134,7 @@ $http.dataFactory = async function(res) {
 			// }).then(data => {
 			// 	res.resolve(data);
 			// });
-			
+
 			store.commit("emptyUserInfo");
 			// #ifdef MP-WEIXIN
 			onLogin();
@@ -165,7 +168,7 @@ $http.dataFactory = async function(res) {
 			// 返回错误的结果(catch接受数据)
 			return Promise.reject({
 				statusCode: 0,
-				errMsg: "【request】" +  (httpData.info || httpData.msg)
+				errMsg: "【request】" + (httpData.info || httpData.msg)
 			});
 		} else if (httpData.code == "1004") {
 			if (loginPopupNum <= 0) {
@@ -198,15 +201,16 @@ $http.dataFactory = async function(res) {
 					duration: 3000
 				});
 			}
+			console.log(httpData);
 			// 返回错误的结果(catch接受数据)
 			return Promise.reject({
 				statusCode: 0,
-				errMsg: "【request】" +  (httpData.info || httpData.msg)
+				errMsg: "【request】" + (httpData.info || httpData.msg)
 			});
 		}
-	
+
 		/*********以上只是模板(及共参考)，需要开发者根据各自的接口返回类型修改*********/
-	
+
 	} else {
 		// 返回错误的结果(catch接受数据)
 		return Promise.reject({
@@ -215,9 +219,9 @@ $http.dataFactory = async function(res) {
 		});
 	}
 };
-$http.requestError = function(e){
+$http.requestError = function(e) {
 	// e.statusCode == 0 是参数效验错误抛出的
-	if(e.statusCode == 0){
+	if (e.statusCode == 0) {
 		throw e;
 	} else {
 		uni.showToast({

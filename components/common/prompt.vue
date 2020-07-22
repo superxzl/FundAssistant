@@ -55,7 +55,8 @@
 					}]
 				},
 				popupInput: '',
-				popupShow: false
+				popupShow: false,
+				myData: []
 			};
 		},
 		//第一次加载
@@ -94,23 +95,28 @@
 				this.popupShow = false;
 			},
 			onConfirm() {
-				if (this.popupInput == '') {
-					uni.showToast({
-						title: '请输入',
-						icon: 'none'
-					});
-					// return;
+				// if (this.popupInput == '') {
+				// 	uni.showToast({
+				// 		title: '请输入',
+				// 		icon: 'none'
+				// 	});
+				// 	// return;
+				// }
+				for (let i = 0; i < this.popupConfig.Config.length; i++) {
+					this.myData[this.popupConfig.Config[i].name] = this.popupConfig.Config[i].value;
 				}
 				this.$emit('confirm', {
 					close: () => {
 						this.popupShow = false;
 					},
 					value: [
-						this.value1
-					]
+						this.myData
+					],
+					index: this.popupConfig.index,
+					type: this.popupConfig.type
 				});
 			}
-			
+
 		}
 	};
 </script>
@@ -130,7 +136,7 @@
 
 	.popupContentBox {
 		position: fixed;
-		top: 30%;
+		top: 50%;
 		left: 10%;
 		width: 80%;
 		transform: translateY(-50%);

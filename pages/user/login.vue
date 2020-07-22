@@ -5,7 +5,7 @@
 		<public-module></public-module>
 		<view class="title">
 			<text :class="{active:type == 2000}" @click="type = 2000">密码登录</text>
-			<text :class="{active:type == 1000}" @click="type = 1000">验证码登录</text>
+			<!-- <text :class="{active:type == 1000}" @click="type = 1000">验证码登录</text> -->
 		</view>
 		<view class="input_box"><input type="text" v-model="email" placeholder="请输入您的账号" /></view>
 		<view class="input_box" v-if="type == 1000">
@@ -24,7 +24,7 @@
 		</view>
 		<view class="nav_box" v-if="type == 2000">
 			<text class="color" @click="onPageJump('/pages/user/register')">去注册</text>
-			<text @click="onPageJump('/pages/user/forget')">忘记密码？</text>
+			<!-- <text @click="onPageJump('/pages/user/forget')">忘记密码？</text> -->
 		</view>
 		<!-- #ifdef APP-PLUS -->
 		<view class="station" v-if="!isIos"></view>
@@ -197,6 +197,7 @@
 								uni.setStorageSync('token', res.data.data.userinfo.token);
 								uni.setStorageSync('username', res.data.data.userinfo.username);
 								uni.setStorageSync('nickname', res.data.data.userinfo.nickname);
+								uni.setStorageSync('createtime', res.data.data.userinfo.createtime);
 								uni.switchTab({
 									url: '/pages/home/home'
 								})

@@ -1,26 +1,27 @@
 <template>
 	<view class="page">
 		<nav-bar title="我的" bgColor="#F5f5f5"></nav-bar>
-		<view class="cell_list" @click="onUnloadImg">
+		<!-- 		<view class="cell_list" @click="onUnloadImg">
 			<view class="cell_left txt">头像</view>
 			<view class="cell_right">
 				<image :src="avatar" mode="aspectFill"></image>
 			</view>
-		</view>
+		</view> -->
 		<!-- <z-prompt :value="nickname" text="请输入昵称" @confirm="onNameChange" :options="popupOptions"> -->
 		<view class="cell_list">
-			<view class="cell_left txt">昵称</view>
+			<view class="cell_left txt">用户名</view>
 			<view class="cell_right arrow">{{ nickname }}</view>
 		</view>
 		<!-- </z-prompt> -->
 		<!-- <z-prompt :value="phone" text="请输入手机号" @confirm="onPhoneChange" :options="popupOptions"> -->
-		<view class="cell_list">
-			<view class="cell_left txt">手机号</view>
-			<view class="cell_right arrow">{{ phone }}</view>
-		</view>
+		<!-- 		<view class="cell_list">
+			<view class="cell_left txt">加入时间</view>
+			<view class="cell_right arrow">{{ createtime }}</view>
+		</view> -->
 		<!-- </z-prompt> -->
 		<!-- 按钮 -->
-		<view class="form_but"><button class="active" @click="onSubmit">保存</button></view>
+		<view class="form_but"><button class="active" @click="onLogout">注銷</button></view>
+		<!-- <view class="form_but"><button class="active" @click="onSubmit">保存</button></view> -->
 	</view>
 </template>
 
@@ -58,6 +59,11 @@
 		onShow() {
 			this.username = uni.getStorageSync('username');
 			this.nickname = uni.getStorageSync('nickname');
+			// this.createtime = uni.getStorageSync('createtime');
+			// if (this.createtime) {
+			// 	this.createtime = this.getYMDHMS(this.createtime)
+			// console.log(this.createtime);
+			// }
 		},
 		//方法
 		methods: {
@@ -86,6 +92,47 @@
 				}).then(res => {
 					this.avatar = res[0].url;
 				});
+			},
+			//注銷
+			onLogout() {
+				uni.setStorage({
+					key: 'token',
+					data: '',
+					success: function() {
+						uni.showToast({
+							title: '退出成功'
+						})
+						uni.navigateTo({
+							url: '/pages/user/login'
+						})
+					}
+				});
+			},
+			getYMDHMS(timestamp) {
+				let time = new Date(timestamp)
+				let year = time.getFullYear()
+				let month = time.getMonth() + 1
+				let date = time.getDate()
+				let hours = time.getHours()
+				let minute = time.getMinutes()
+				let second = time.getSeconds()
+
+				if (month < 10) {
+					month = '0' + month
+				}
+				if (date < 10) {
+					date = '0' + date
+				}
+				if (hours < 10) {
+					hours = '0' + hours
+				}
+				if (minute < 10) {
+					minute = '0' + minute
+				}
+				if (second < 10) {
+					second = '0' + second
+				}
+				return year + '-' + month + '-' + date + ' ' + hours + ':' + minute + ':' + second
 			},
 			//提交
 			onSubmit() {

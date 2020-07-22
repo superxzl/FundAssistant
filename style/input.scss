@@ -286,6 +286,9 @@
 		border-bottom: 0;
 	}
 	.cell_left {
+		margin-left:10px;
+		width: 30%;
+		padding: 30upx;
 		font-size: 28upx;
 		color: #333333;
 		display: flex;
@@ -303,7 +306,7 @@
 		align-items: center;
 		&.arrow::after {
 			content: '';
-			@include bis('./static/icon/me_lise_more.png', 100% 100%);
+			// @include bis('./static/icon/me_lise_more.png', 100% 100%);
 			width: 12upx;
 			height: 22upx;
 			margin-left: 20upx;
